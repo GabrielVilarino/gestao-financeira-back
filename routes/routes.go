@@ -28,6 +28,11 @@ func InitializeRoutes() {
 			security.BasicAuth(os.Getenv("BASIC_AUTH_USER"), os.Getenv("BASIC_AUTH_PASS")),
 			user.CreateUserRoute,
 		)
+
+		userGroup.POST(
+			"/auth-user",
+			user.AuthUserRoute,
+		)
 	}
 
 	configs.Log.Info("==> Servidor Iniciado <==")
