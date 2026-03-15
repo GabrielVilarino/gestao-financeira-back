@@ -1,10 +1,10 @@
 package security
 
 import (
-	"fmt"
-	"os"
-	"time"
+	"net/http"
+	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -15,63 +15,55 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-// GenerateToken gera um token JWT para o usuário
-func GenerateToken(userID int, email string, isAdmin bool) (string, error) {
-	secretKey := os.Getenv("JWT_SECRET")
-	if secretKey == "" {
-		return "", fmt.Errorf("JWT_SECRET não configurado")
+func BearerAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Extrai o token do header Authorization
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token não fornecido"})
+			c.Abort()
+			return
+		}
+
+		// Verifica se o header está no formato "Bearer <token>"
+		parts := strings.Split(authHeader, " ")
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Formato de token inválido"})
+			c.Abort()
+			return
+		}
+
+		tokenString := parts[1]
+
+		// Valida o token
+		claims, err := validateToken(tokenString)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token inválido ou expirado"})
+			c.Abort()
+			return
+		}
+
+		// Adiciona as informações do usuário no contexto
+		c.Set("user_id", claims.UserID)
+		c.Set("email", claims.Email)
+		c.Set("is_admin", claims.IsAdmin)
+
+		// Continua para o próximo handler
+		c.Next()
 	}
-
-	// Define o tempo de expiração (24 horas)
-	expirationTime := time.Now().Add(24 * time.Hour)
-
-	// Cria as claims do token
-	claims := &Claims{
-		UserID:  userID,
-		Email:   email,
-		IsAdmin: isAdmin,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		},
-	}
-
-	// Cria o token com o método de assinatura HS256
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	// Assina o token com a chave secreta
-	tokenString, err := token.SignedString([]byte(secretKey))
-	if err != nil {
-		return "", err
-	}
-
-	return tokenString, nil
 }
 
-// ValidateToken valida um token JWT e retorna as claims
-func ValidateToken(tokenString string) (*Claims, error) {
-	secretKey := os.Getenv("JWT_SECRET")
-	if secretKey == "" {
-		return nil, fmt.Errorf("JWT_SECRET não configurado")
-	}
-
-	// Parse e valida o token
-	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		// Valida o método de assinatura
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("método de assinatura inválido")
+// AdminMiddleware middleware para validar se o usuário é admin
+func AdminMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Verifica se o usuário é admin
+		isAdmin, exists := c.Get("is_admin")
+		if !exists || !isAdmin.(bool) {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Acesso negado: permissão de administrador necessária"})
+			c.Abort()
+			return
 		}
-		return []byte(secretKey), nil
-	})
 
-	if err != nil {
-		return nil, err
+		c.Next()
 	}
-
-	// Extrai as claims do token
-	if claims, ok := token.Claims.(*Claims); ok && token.Valid {
-		return claims, nil
-	}
-
-	return nil, fmt.Errorf("token inválido")
 }
