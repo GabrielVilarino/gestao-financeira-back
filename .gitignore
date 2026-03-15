@@ -1,0 +1,11 @@
+# Arquivos de dependências
+go.sum
+
+# Variáveis de ambiente e configuração
+.env
+.env.local
+.env.*.local
+config.local.json
+
+# IDEs
+.vscode/
