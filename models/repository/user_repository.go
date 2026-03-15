@@ -20,7 +20,7 @@ func GetUserByEmail(email string) (*entities.User, error) {
 	var user entities.User
 	err := config.DB.QueryRow(query, email).Scan(
 		&user.ID,
-		&user.Name,
+		&user.Nome,
 		&user.Email,
 		&user.Password,
 		&user.IsAdmin,
@@ -62,7 +62,7 @@ func CreateUserRepository(userEntity entities.User) (*entities.User, error) {
 	var newUserID int
 	err = config.DB.QueryRow(
 		query,
-		userEntity.Name,
+		userEntity.Nome,
 		userEntity.Email,
 		string(hashedPassword),
 	).Scan(&newUserID)

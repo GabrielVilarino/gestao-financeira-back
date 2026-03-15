@@ -8,7 +8,7 @@ import (
 // Conversão entre schemas e entidades para usuário
 func UserSchemaToEntity(userRequest schemas.CreateUserRequest) entities.User {
 	return entities.User{
-		Name:     userRequest.Nome,
+		Nome:     userRequest.Nome,
 		Email:    userRequest.Email,
 		Password: userRequest.Senha,
 	}
@@ -17,7 +17,7 @@ func UserSchemaToEntity(userRequest schemas.CreateUserRequest) entities.User {
 func UserEntityToSchema(user entities.User) schemas.CreateUserResponse {
 	return schemas.CreateUserResponse{
 		ID:    *user.ID,
-		Nome:  user.Name,
+		Nome:  user.Nome,
 		Email: user.Email,
 	}
 }

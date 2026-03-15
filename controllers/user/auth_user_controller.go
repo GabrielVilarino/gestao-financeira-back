@@ -5,14 +5,18 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/services/user"
 )
 
-func AuthUserController(authUserRequest schemas.AuthUserRequest) (*schemas.AuthUserResponse, error) {
+func AuthUserController(authUserRequest schemas.AuthUserRequest) (*schemas.AuthUserResponse, *string, error) {
 	// Controller para autenticar um usuário
-	token, err := user.AuthUserService(authUserRequest.Email, authUserRequest.Senha)
+	user, token, err := user.AuthUserService(authUserRequest.Email, authUserRequest.Senha)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	return &schemas.AuthUserResponse{
-		Token: *token,
-	}, nil
+		ID:      *user.ID,
+		Nome:    user.Nome,
+		Email:   user.Email,
+		IsAdmin: *user.IsAdmin,
+		IdGroup: user.IdGroup,
+	}, token, nil
 }

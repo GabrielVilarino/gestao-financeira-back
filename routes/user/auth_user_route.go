@@ -18,7 +18,7 @@ func AuthUserRoute(c *gin.Context) {
 		return
 	}
 
-	response, err := user.AuthUserController(request)
+	response, token, err := user.AuthUserController(request)
 	if err != nil {
 		configs.Log.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{
@@ -26,6 +26,16 @@ func AuthUserRoute(c *gin.Context) {
 		})
 		return
 	}
+
+	c.SetCookie(
+		"auth_token",
+		*token,
+		3600*24,
+		"/",
+		"",
+		false,
+		true,
+	)
 
 	c.JSON(http.StatusOK, response)
 }

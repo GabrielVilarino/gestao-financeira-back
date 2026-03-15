@@ -6,7 +6,11 @@ type AuthUserRequest struct {
 }
 
 type AuthUserResponse struct {
-	Token string `json:"token"`
+	ID      int    `json:"id_usuario"`
+	Nome    string `json:"nome"`
+	Email   string `json:"email"`
+	IsAdmin bool   `json:"is_admin"`
+	IdGroup *int   `json:"id_grupo"`
 }
 
 type CreateUserRequest struct {

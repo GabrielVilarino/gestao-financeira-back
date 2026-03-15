@@ -12,6 +12,7 @@ type Claims struct {
 	UserID  int    `json:"user_id"`
 	Email   string `json:"email"`
 	IsAdmin bool   `json:"is_admin"`
+	IDGroup int    `json:"id_group"`
 	jwt.RegisteredClaims
 }
 
@@ -47,8 +48,34 @@ func BearerAuth() gin.HandlerFunc {
 		c.Set("user_id", claims.UserID)
 		c.Set("email", claims.Email)
 		c.Set("is_admin", claims.IsAdmin)
+		c.Set("id_group", claims.IDGroup)
 
 		// Continua para o próximo handler
+		c.Next()
+	}
+}
+
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token, err := c.Cookie("auth_token")
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token de autenticação não encontrado"})
+			c.Abort()
+			return
+		}
+
+		claims, err := validateToken(token)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token de autenticação inválido ou expirado"})
+			c.Abort()
+			return
+		}
+
+		c.Set("user_id", claims.UserID)
+		c.Set("email", claims.Email)
+		c.Set("is_admin", claims.IsAdmin)
+		c.Set("id_group", claims.IDGroup)
+
 		c.Next()
 	}
 }
