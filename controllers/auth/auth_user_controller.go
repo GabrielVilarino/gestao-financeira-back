@@ -1,13 +1,13 @@
-package user
+package auth
 
 import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/schemas"
-	"github.com/GabrielVilarino/gestao-financeira-back.git/services/user"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/services/auth"
 )
 
 func AuthUserController(authUserRequest schemas.AuthUserRequest) (*schemas.AuthUserResponse, *string, error) {
 	// Controller para autenticar um usuário
-	user, token, err := user.AuthUserService(authUserRequest.Email, authUserRequest.Senha)
+	user, token, err := auth.AuthUserService(authUserRequest.Email, authUserRequest.Senha)
 	if err != nil {
 		return nil, nil, err
 	}

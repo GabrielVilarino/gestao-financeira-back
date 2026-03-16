@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/GabrielVilarino/gestao-financeira-back.git/configs"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/auth"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/user"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/security"
 	"github.com/gin-gonic/gin"
@@ -20,6 +21,20 @@ func InitializeRoutes() {
 	// Agrupamento de rotas para a versão da API
 	v1 := router.Group("/api/v1")
 
+	// Rotas de autenticação
+	userAuth := v1.Group("/auth")
+	{
+		userAuth.POST(
+			"/login",
+			auth.AuthUserRoute,
+		)
+
+		userAuth.POST(
+			"/logout",
+			security.AuthMiddleware(),
+			auth.LogoutUserRoute,
+		)
+	}
 	// Rotas de usuário
 	userGroup := v1.Group("/users")
 	{
@@ -29,10 +44,6 @@ func InitializeRoutes() {
 			user.CreateUserRoute,
 		)
 
-		userGroup.POST(
-			"/auth-user",
-			user.AuthUserRoute,
-		)
 	}
 
 	configs.Log.Info("==> Servidor Iniciado <==")

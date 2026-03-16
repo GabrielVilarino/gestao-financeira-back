@@ -1,10 +1,10 @@
-package user
+package auth
 
 import (
 	"net/http"
 
 	"github.com/GabrielVilarino/gestao-financeira-back.git/configs"
-	"github.com/GabrielVilarino/gestao-financeira-back.git/controllers/user"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/controllers/auth"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/schemas"
 	"github.com/gin-gonic/gin"
 )
@@ -18,7 +18,7 @@ func AuthUserRoute(c *gin.Context) {
 		return
 	}
 
-	response, token, err := user.AuthUserController(request)
+	response, token, err := auth.AuthUserController(request)
 	if err != nil {
 		configs.Log.Error(err)
 		c.JSON(http.StatusUnauthorized, gin.H{
