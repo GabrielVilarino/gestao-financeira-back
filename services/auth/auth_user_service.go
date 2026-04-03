@@ -27,7 +27,7 @@ func AuthUserService(email, senha string) (*entities.User, *string, error) {
 	}
 
 	// Gera o token JWT
-	token, err := security.GenerateToken(*user.ID, user.Email, *user.IsAdmin)
+	token, err := security.GenerateToken(*user.ID, user.Email, *user.IsAdmin, user.IdGroup)
 	if err != nil {
 		return nil, nil, fmt.Errorf("Erro ao gerar token")
 	}

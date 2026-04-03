@@ -19,9 +19,22 @@ func CreateGanhoRoute(c *gin.Context) {
 		return
 	}
 
-	response, err := ganhoController.CreateGanhoController(request)
+	idUsuario := c.GetInt("user_id")
+	idGroupRaw := c.GetInt("id_group")
+	var idGrupoJWT *int
+	if idGroupRaw != 0 {
+		idGrupoJWT = &idGroupRaw
+	}
+
+	response, err := ganhoController.CreateGanhoController(idUsuario, idGrupoJWT, request)
 	if err != nil {
 		configs.Log.Error(err)
+		if ganhoController.IsValidationError(err) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Erro ao registrar ganho",
 		})

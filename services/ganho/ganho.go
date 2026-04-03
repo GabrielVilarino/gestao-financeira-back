@@ -5,10 +5,22 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/schemas"
 )
 
+func validarIDGrupo(idGrupoRequest *int, idGrupoJWT *int) error {
+	if idGrupoRequest == nil {
+		return nil
+	}
+	jwtGroupID := 0
+	if idGrupoJWT != nil {
+		jwtGroupID = *idGrupoJWT
+	}
+	if *idGrupoRequest != jwtGroupID {
+		return &ValidationError{Message: "id_grupo não corresponde ao grupo do usuário autenticado"}
+	}
+	return nil
+}
+
 func GanhoSchemaToEntity(request schemas.CreateGanhoRequest) entities.Ganho {
 	return entities.Ganho{
-		IDUsuario:       request.IDUsuario,
-		IDGrupo:         request.IDGrupo,
 		IDCategoria:     request.IDCategoria,
 		IDSubcategoria:  request.IDSubcategoria,
 		TipoTransacao:   request.TipoTransacao,
@@ -20,8 +32,6 @@ func GanhoSchemaToEntity(request schemas.CreateGanhoRequest) entities.Ganho {
 func GanhoUpdateSchemaToEntity(request schemas.UpdateGanhoRequest) entities.Ganho {
 	return entities.Ganho{
 		ID:              request.ID,
-		IDUsuario:       request.IDUsuario,
-		IDGrupo:         request.IDGrupo,
 		IDCategoria:     request.IDCategoria,
 		IDSubcategoria:  request.IDSubcategoria,
 		TipoTransacao:   request.TipoTransacao,
@@ -55,5 +65,15 @@ func GanhoEntityToUpdateSchema(ganho entities.Ganho) schemas.UpdateGanhoResponse
 		Valor:           ganho.Valor,
 		DataRecebimento: ganho.DataRecebimento,
 		DataCriacao:     ganho.DataCriacao,
+	}
+}
+
+func GanhoEntityToGetSchema(ganho entities.Ganho) schemas.GetGanhoByIDResponse {
+	return schemas.GetGanhoByIDResponse{
+		IDCategoria:     ganho.IDCategoria,
+		IDSubcategoria:  ganho.IDSubcategoria,
+		TipoTransacao:   ganho.TipoTransacao,
+		Valor:           ganho.Valor,
+		DataRecebimento: ganho.DataRecebimento,
 	}
 }

@@ -5,8 +5,18 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/schemas"
 )
 
-func CreateGanhoService(request schemas.CreateGanhoRequest) (*schemas.CreateGanhoResponse, error) {
+func CreateGanhoService(idUsuario int, idGrupoJWT *int, request schemas.CreateGanhoRequest) (*schemas.CreateGanhoResponse, error) {
+	if err := validarIDGrupo(request.IDGrupo, idGrupoJWT); err != nil {
+		return nil, err
+	}
+
 	ganho := GanhoSchemaToEntity(request)
+	ganho.IDUsuario = idUsuario
+	if request.IDGrupo != nil {
+		ganho.IDGrupo = request.IDGrupo
+	} else {
+		ganho.IDGrupo = idGrupoJWT
+	}
 
 	ganhoCreated, err := repository.CreateGanhoRepository(ganho)
 	if err != nil {

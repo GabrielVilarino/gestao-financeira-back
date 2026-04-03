@@ -16,7 +16,7 @@ func (e *ValidationError) Error() string {
 	return e.Message
 }
 
-func GetGanhosService(dataInicio, dataFim *string, idGrupo *int) ([]schemas.GetGanhoResponse, error) {
+func GetGanhosService(idUsuario int, dataInicio, dataFim *string, idGrupo *int) ([]schemas.GetGanhoResponse, error) {
 	if dataInicio != nil {
 		if _, err := time.Parse("2006-01-02", *dataInicio); err != nil {
 			return nil, &ValidationError{Message: "data_inicio inválida, use o formato AAAA-MM-DD"}
@@ -35,25 +35,21 @@ func GetGanhosService(dataInicio, dataFim *string, idGrupo *int) ([]schemas.GetG
 		}
 	}
 
-	ganhos, err := repository.GetGanhosRepository(dataInicio, dataFim, idGrupo)
+	ganhos, err := repository.GetGanhosRepository(idUsuario, dataInicio, dataFim, idGrupo)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao buscar ganhos: %w", err)
 	}
 
-	var response []schemas.GetGanhoResponse
-	for _, g := range ganhos {
-		response = append(response, schemas.GetGanhoResponse{
-			ID:              g.ID,
-			IDUsuario:       g.IDUsuario,
-			IDGrupo:         g.IDGrupo,
-			IDCategoria:     g.IDCategoria,
-			IDSubcategoria:  g.IDSubcategoria,
-			TipoTransacao:   g.TipoTransacao,
-			Valor:           g.Valor,
-			DataRecebimento: g.DataRecebimento,
-			DataCriacao:     g.DataCriacao,
-		})
+	return ganhos, nil
+}
+
+func GetGanhosByIDService(id string) (*schemas.GetGanhoByIDResponse, error) {
+	ganho, err := repository.GetGanhosByIDRepository(id)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao buscar ganhos: %w", err)
 	}
 
-	return response, nil
+	response := GanhoEntityToGetSchema(*ganho)
+
+	return &response, nil
 }

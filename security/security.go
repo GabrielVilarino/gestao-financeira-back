@@ -9,7 +9,7 @@ import (
 )
 
 // GenerateToken gera um token JWT para o usuário
-func GenerateToken(userID int, email string, isAdmin bool) (string, error) {
+func GenerateToken(userID int, email string, isAdmin bool, idGroup *int) (string, error) {
 	secretKey := os.Getenv("JWT_SECRET")
 	if secretKey == "" {
 		return "", fmt.Errorf("JWT_SECRET não configurado")
@@ -18,11 +18,17 @@ func GenerateToken(userID int, email string, isAdmin bool) (string, error) {
 	// Define o tempo de expiração (24 horas)
 	expirationTime := time.Now().Add(24 * time.Hour)
 
+	groupID := 0
+	if idGroup != nil {
+		groupID = *idGroup
+	}
+
 	// Cria as claims do token
 	claims := &Claims{
 		UserID:  userID,
 		Email:   email,
 		IsAdmin: isAdmin,
+		IDGroup: groupID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

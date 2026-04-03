@@ -5,6 +5,7 @@ import (
 
 	"github.com/GabrielVilarino/gestao-financeira-back.git/configs"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/auth"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/categoria"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/ganho"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/user"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/security"
@@ -60,6 +61,11 @@ func InitializeRoutes() {
 			ganho.GetGanhosRoute,
 		)
 
+		ganhoGroup.GET(
+			"/:id",
+			ganho.GetGanhosByIDRoute,
+		)
+
 		ganhoGroup.PUT(
 			"/update",
 			ganho.UpdateGanhoRoute,
@@ -68,6 +74,21 @@ func InitializeRoutes() {
 		ganhoGroup.DELETE(
 			"/delete/:id",
 			ganho.DeleteGanhoRoute,
+		)
+	}
+
+	// Rotas de categorias
+	categoriaGroup := v1.Group("/categorias")
+	categoriaGroup.Use(security.AuthMiddleware())
+	{
+		categoriaGroup.GET(
+			"",
+			categoria.GetCategoriasRoute,
+		)
+
+		categoriaGroup.GET(
+			"/subcategorias",
+			categoria.GetSubcategoriasRoute,
 		)
 	}
 

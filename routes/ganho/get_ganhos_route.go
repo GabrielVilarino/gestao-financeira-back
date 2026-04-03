@@ -10,6 +10,8 @@ import (
 )
 
 func GetGanhosRoute(c *gin.Context) {
+	idUsuario := c.GetInt("user_id")
+
 	var dataInicio, dataFim *string
 	var idGrupo *int
 
@@ -30,7 +32,28 @@ func GetGanhosRoute(c *gin.Context) {
 		idGrupo = &parsed
 	}
 
-	response, err := ganhoController.GetGanhosController(dataInicio, dataFim, idGrupo)
+	response, err := ganhoController.GetGanhosController(idUsuario, dataInicio, dataFim, idGrupo)
+	if err != nil {
+		configs.Log.Error(err)
+		if ganhoController.IsValidationError(err) {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Erro ao buscar ganhos",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func GetGanhosByIDRoute(c *gin.Context) {
+	id := c.Param("id")
+
+	response, err := ganhoController.GetGanhosByIDController(id)
 	if err != nil {
 		configs.Log.Error(err)
 		if ganhoController.IsValidationError(err) {

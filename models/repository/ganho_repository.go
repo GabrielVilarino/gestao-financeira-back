@@ -5,6 +5,7 @@ import (
 
 	"github.com/GabrielVilarino/gestao-financeira-back.git/models/config"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/models/entities"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/schemas"
 )
 
 func CreateGanhoRepository(ganho entities.Ganho) (*entities.Ganho, error) {
@@ -71,36 +72,44 @@ func DeleteGanhoRepository(id int) error {
 	return nil
 }
 
-func GetGanhosRepository(dataInicio, dataFim *string, idGrupo *int) ([]entities.Ganho, error) {
+func GetGanhosRepository(idUsuario int, dataInicio, dataFim *string, idGrupo *int) ([]schemas.GetGanhoResponse, error) {
 	baseQuery := `
-		SELECT id_receita, id_usuario, id_grupo, id_categoria, id_subcategoria, tipo_transacao, valor, data_recebimento, data_criacao
-		FROM receita
+		SELECT 
+			r.id_receita as id,
+			u.nome,
+			r.data_recebimento as data,
+			r.valor,
+			c.nome as tipo
+		FROM receita r 
+		JOIN usuario u
+		ON u.id_usuario = r.id_usuario
+		JOIN categoria c
+		ON c.id_categoria = r.id_categoria
 	`
 
-	args := []interface{}{}
-	conditions := ""
-	paramIdx := 1
+	args := []interface{}{idUsuario}
+	conditions := " WHERE r.id_usuario = $1"
+	paramIdx := 2
 	addCondition := func(clause string) {
-		if paramIdx == 1 {
-			conditions += " WHERE " + clause
-		} else {
-			conditions += " AND " + clause
-		}
+		conditions += " AND " + clause
+	}
+
+	if idGrupo != nil {
+		addCondition(fmt.Sprintf("r.id_grupo = $%d", paramIdx))
+		args = append(args, *idGrupo)
+		paramIdx++
+	} else {
+		addCondition("r.id_grupo IS NULL")
 	}
 
 	if dataInicio != nil {
-		addCondition(fmt.Sprintf("data_recebimento >= $%d", paramIdx))
+		addCondition(fmt.Sprintf("r.data_recebimento >= $%d", paramIdx))
 		args = append(args, *dataInicio)
 		paramIdx++
 	}
 	if dataFim != nil {
-		addCondition(fmt.Sprintf("data_recebimento <= $%d", paramIdx))
+		addCondition(fmt.Sprintf("r.data_recebimento <= $%d", paramIdx))
 		args = append(args, *dataFim)
-		paramIdx++
-	}
-	if idGrupo != nil {
-		addCondition(fmt.Sprintf("id_grupo = $%d", paramIdx))
-		args = append(args, *idGrupo)
 	}
 
 	rows, err := config.DB.Query(baseQuery+conditions, args...)
@@ -109,19 +118,15 @@ func GetGanhosRepository(dataInicio, dataFim *string, idGrupo *int) ([]entities.
 	}
 	defer rows.Close()
 
-	var ganhos []entities.Ganho
+	var ganhos []schemas.GetGanhoResponse
 	for rows.Next() {
-		var g entities.Ganho
+		var g schemas.GetGanhoResponse
 		err := rows.Scan(
 			&g.ID,
-			&g.IDUsuario,
-			&g.IDGrupo,
-			&g.IDCategoria,
-			&g.IDSubcategoria,
-			&g.TipoTransacao,
-			&g.Valor,
+			&g.Nome,
 			&g.DataRecebimento,
-			&g.DataCriacao,
+			&g.Valor,
+			&g.TipoTransacao,
 		)
 		if err != nil {
 			return nil, err
@@ -134,4 +139,44 @@ func GetGanhosRepository(dataInicio, dataFim *string, idGrupo *int) ([]entities.
 	}
 
 	return ganhos, nil
+}
+
+func GetGanhosByIDRepository(id string) (*entities.Ganho, error) {
+	query := `
+		SELECT 
+			*
+		FROM receita r
+		WHERE r.id_receita = $1
+	`
+
+	rows, err := config.DB.Query(query, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var ganho entities.Ganho
+
+	if rows.Next() {
+		err := rows.Scan(
+			&ganho.ID,
+			&ganho.IDUsuario,
+			&ganho.IDGrupo,
+			&ganho.IDCategoria,
+			&ganho.IDSubcategoria,
+			&ganho.TipoTransacao,
+			&ganho.DataRecebimento,
+			&ganho.DataCriacao,
+			&ganho.Valor,
+		)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return &ganho, nil
 }

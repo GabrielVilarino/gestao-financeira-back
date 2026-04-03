@@ -1,7 +1,6 @@
 package schemas
 
 type CreateGanhoRequest struct {
-	IDUsuario       int     `json:"id_usuario" binding:"required"`
 	IDGrupo         *int    `json:"id_grupo"`
 	IDCategoria     int     `json:"id_categoria" binding:"required"`
 	IDSubcategoria  *int    `json:"id_subcategoria"`
@@ -24,7 +23,6 @@ type CreateGanhoResponse struct {
 
 type UpdateGanhoRequest struct {
 	ID              int     `json:"id" binding:"required"`
-	IDUsuario       int     `json:"id_usuario" binding:"required"`
 	IDGrupo         *int    `json:"id_grupo"`
 	IDCategoria     int     `json:"id_categoria" binding:"required"`
 	IDSubcategoria  *int    `json:"id_subcategoria"`
@@ -46,15 +44,19 @@ type UpdateGanhoResponse struct {
 }
 
 type GetGanhoResponse struct {
-	ID              int     `json:"id_receita"`
-	IDUsuario       int     `json:"id_usuario"`
-	IDGrupo         *int    `json:"id_grupo,omitempty"`
-	IDCategoria     int     `json:"id_categoria"`
-	IDSubcategoria  *int    `json:"id_subcategoria,omitempty"`
-	TipoTransacao   string  `json:"tipo_transacao"`
+	ID              int     `json:"id"`
+	Nome            string  `json:"nome"`
+	DataRecebimento string  `json:"data"`
 	Valor           float64 `json:"valor"`
+	TipoTransacao   string  `json:"tipo"`
+}
+
+type GetGanhoByIDResponse struct {
+	IDCategoria     int     `json:"id_categoria"`
+	IDSubcategoria  *int    `json:"id_subcategoria"`
+	Valor           float64 `json:"valor"`
+	TipoTransacao   string  `json:"tipo_transacao"`
 	DataRecebimento string  `json:"data_recebimento"`
-	DataCriacao     *string `json:"data_criacao"`
 }
 
 type DeleteGanhoResponse struct {
