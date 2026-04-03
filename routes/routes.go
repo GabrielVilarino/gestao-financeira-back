@@ -5,6 +5,7 @@ import (
 
 	"github.com/GabrielVilarino/gestao-financeira-back.git/configs"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/auth"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/ganho"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/user"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/security"
 	"github.com/gin-gonic/gin"
@@ -43,7 +44,31 @@ func InitializeRoutes() {
 			security.BasicAuth(os.Getenv("BASIC_AUTH_USER"), os.Getenv("BASIC_AUTH_PASS")),
 			user.CreateUserRoute,
 		)
+	}
 
+	// Rotas de ganhos
+	ganhoGroup := v1.Group("/ganhos")
+	ganhoGroup.Use(security.AuthMiddleware())
+	{
+		ganhoGroup.POST(
+			"/create",
+			ganho.CreateGanhoRoute,
+		)
+
+		ganhoGroup.GET(
+			"",
+			ganho.GetGanhosRoute,
+		)
+
+		ganhoGroup.PUT(
+			"/update",
+			ganho.UpdateGanhoRoute,
+		)
+
+		ganhoGroup.DELETE(
+			"/delete/:id",
+			ganho.DeleteGanhoRoute,
+		)
 	}
 
 	configs.Log.Info("==> Servidor Iniciado <==")
