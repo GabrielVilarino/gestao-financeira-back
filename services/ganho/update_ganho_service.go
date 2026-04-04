@@ -3,10 +3,11 @@ package ganho
 import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/models/repository"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/schemas"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/services"
 )
 
 func UpdateGanhoService(idUsuario int, idGrupoJWT *int, request schemas.UpdateGanhoRequest) (*schemas.UpdateGanhoResponse, error) {
-	if err := validarIDGrupo(request.IDGrupo, idGrupoJWT); err != nil {
+	if err := services.ValidarIDGrupo(request.IDGrupo, idGrupoJWT); err != nil {
 		return nil, err
 	}
 

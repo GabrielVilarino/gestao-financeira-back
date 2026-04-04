@@ -10,7 +10,19 @@ import (
 )
 
 func GetCategoriasRoute(c *gin.Context) {
-	response, err := categoriaController.GetCategoriasController()
+	var tipo *string
+
+	if val := c.Query("tipo"); val != "" {
+		if val != "receita" && val != "despesa" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "tipo inválido",
+			})
+			return
+		}
+		tipo = &val
+	}
+
+	response, err := categoriaController.GetCategoriasController(tipo)
 	if err != nil {
 		configs.Log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{

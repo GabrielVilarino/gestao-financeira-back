@@ -1,4 +1,4 @@
-package ganho
+package despesa
 
 import (
 	"net/http"
@@ -6,11 +6,11 @@ import (
 
 	"github.com/GabrielVilarino/gestao-financeira-back.git/configs"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/controllers"
-	ganhoController "github.com/GabrielVilarino/gestao-financeira-back.git/controllers/ganho"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/controllers/despesa"
 	"github.com/gin-gonic/gin"
 )
 
-func GetGanhosRoute(c *gin.Context) {
+func GetDespesasRoute(c *gin.Context) {
 	idUsuario := c.GetInt("user_id")
 
 	var dataInicio, dataFim *string
@@ -19,9 +19,11 @@ func GetGanhosRoute(c *gin.Context) {
 	if val := c.Query("data_inicio"); val != "" {
 		dataInicio = &val
 	}
+
 	if val := c.Query("data_fim"); val != "" {
 		dataFim = &val
 	}
+
 	if val := c.Query("id_grupo"); val != "" {
 		parsed, err := strconv.Atoi(val)
 		if err != nil {
@@ -33,7 +35,7 @@ func GetGanhosRoute(c *gin.Context) {
 		idGrupo = &parsed
 	}
 
-	response, err := ganhoController.GetGanhosController(idUsuario, dataInicio, dataFim, idGrupo)
+	response, err := despesa.GetDespesasController(idUsuario, dataInicio, dataFim, idGrupo)
 	if err != nil {
 		configs.Log.Error(err)
 		if controllers.IsValidationError(err) {
@@ -43,7 +45,7 @@ func GetGanhosRoute(c *gin.Context) {
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Erro ao buscar ganhos",
+			"error": "Erro ao buscar despesas",
 		})
 		return
 	}
@@ -51,10 +53,10 @@ func GetGanhosRoute(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-func GetGanhosByIDRoute(c *gin.Context) {
+func GetDespesaByIDRoute(c *gin.Context) {
 	id := c.Param("id")
 
-	response, err := ganhoController.GetGanhosByIDController(id)
+	response, err := despesa.GetDespesaByIDController(id)
 	if err != nil {
 		configs.Log.Error(err)
 		if controllers.IsValidationError(err) {
@@ -64,7 +66,7 @@ func GetGanhosByIDRoute(c *gin.Context) {
 			return
 		}
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Erro ao buscar ganhos",
+			"error": "Erro ao buscar despesas",
 		})
 		return
 	}

@@ -5,14 +5,21 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/schemas"
 )
 
-func GetCategoriasRepository() ([]schemas.GetCategoriaResponse, error) {
+func GetCategoriasRepository(tipo *string) ([]schemas.GetCategoriaResponse, error) {
 	query := `
 		SELECT id_categoria, nome, tipo_movimentacao
 		FROM categoria
-		ORDER BY nome
 	`
+	args := []interface{}{}
 
-	rows, err := config.DB.Query(query)
+	if tipo != nil {
+		query += " WHERE tipo_movimentacao = $1"
+		args = append(args, *tipo)
+	}
+
+	query += " ORDER BY nome"
+
+	rows, err := config.DB.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}

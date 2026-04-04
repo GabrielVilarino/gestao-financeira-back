@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/GabrielVilarino/gestao-financeira-back.git/configs"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/controllers"
 	ganhoController "github.com/GabrielVilarino/gestao-financeira-back.git/controllers/ganho"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/schemas"
 	"github.com/gin-gonic/gin"
@@ -29,7 +30,7 @@ func UpdateGanhoRoute(c *gin.Context) {
 	response, err := ganhoController.UpdateGanhoController(idUsuario, idGrupo, request)
 	if err != nil {
 		configs.Log.Error(err)
-		if ganhoController.IsValidationError(err) {
+		if controllers.IsValidationError(err) {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})

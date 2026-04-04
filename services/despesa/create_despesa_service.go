@@ -1,4 +1,4 @@
-package ganho
+package despesa
 
 import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/models/repository"
@@ -6,24 +6,26 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/services"
 )
 
-func CreateGanhoService(idUsuario int, idGrupoJWT *int, request schemas.CreateGanhoRequest) (*schemas.CreateGanhoResponse, error) {
+func CreateDespesaService(idUsuario int, idGrupoJWT *int, request schemas.CreateDespesaRequest) (*schemas.CreateDespesaResponse, error) {
 	if err := services.ValidarIDGrupo(request.IDGrupo, idGrupoJWT); err != nil {
 		return nil, err
 	}
 
-	ganho := GanhoSchemaToEntity(request)
-	ganho.IDUsuario = idUsuario
+	despesa := DespesaSchemaToEntity(request)
+
+	despesa.IDUsuario = idUsuario
 	if request.IDGrupo != nil {
-		ganho.IDGrupo = request.IDGrupo
+		despesa.IDGrupo = request.IDGrupo
 	} else {
-		ganho.IDGrupo = idGrupoJWT
+		despesa.IDGrupo = idGrupoJWT
 	}
 
-	ganhoCreated, err := repository.CreateGanhoRepository(ganho)
+	despesaCreated, err := repository.CreateDespesaRepository(despesa)
 	if err != nil {
 		return nil, err
 	}
 
-	response := GanhoEntityToCreateSchema(*ganhoCreated)
+	response := DespesaEntityToCreateSchema(*despesaCreated)
+
 	return &response, nil
 }

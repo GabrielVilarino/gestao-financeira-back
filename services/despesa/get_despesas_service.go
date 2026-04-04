@@ -1,4 +1,4 @@
-package ganho
+package despesa
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/schemas"
 )
 
-func GetGanhosService(idUsuario int, dataInicio, dataFim *string, idGrupo *int) ([]schemas.GetGanhoResponse, error) {
+func GetDespesasService(idUsuario int, dataInicio, dataFim *string, idGrupo *int) ([]schemas.GetDespesaResponse, error) {
 	if dataInicio != nil {
 		if _, err := time.Parse("2006-01-02", *dataInicio); err != nil {
 			return nil, &exceptions.ValidationError{Message: "data_inicio inválida, use o formato AAAA-MM-DD"}
@@ -28,21 +28,21 @@ func GetGanhosService(idUsuario int, dataInicio, dataFim *string, idGrupo *int) 
 		}
 	}
 
-	ganhos, err := repository.GetGanhosRepository(idUsuario, dataInicio, dataFim, idGrupo)
+	despesas, err := repository.GetDespesasRepository(idUsuario, dataInicio, dataFim, idGrupo)
 	if err != nil {
-		return nil, fmt.Errorf("erro ao buscar ganhos: %w", err)
+		return nil, fmt.Errorf("erro ao buscar despesas: %w", err)
 	}
 
-	return ganhos, nil
+	return despesas, nil
 }
 
-func GetGanhosByIDService(id string) (*schemas.GetGanhoByIDResponse, error) {
-	ganho, err := repository.GetGanhosByIDRepository(id)
+func GetDespesaByIDService(id string) (*schemas.GetDespesaByIDResponse, error) {
+	despesa, err := repository.GetDespesasByIDRepository(id)
 	if err != nil {
-		return nil, fmt.Errorf("erro ao buscar ganhos: %w", err)
+		return nil, fmt.Errorf("erro ao buscar despesas: %w", err)
 	}
 
-	response := GanhoEntityToGetSchema(*ganho)
+	response := DespesaEntityToGetSchema(*despesa)
 
 	return &response, nil
 }

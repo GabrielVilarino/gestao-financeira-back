@@ -6,6 +6,7 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/configs"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/auth"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/categoria"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/despesa"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/ganho"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/user"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/security"
@@ -37,6 +38,7 @@ func InitializeRoutes() {
 			auth.LogoutUserRoute,
 		)
 	}
+
 	// Rotas de usuário
 	userGroup := v1.Group("/users")
 	{
@@ -74,6 +76,36 @@ func InitializeRoutes() {
 		ganhoGroup.DELETE(
 			"/delete/:id",
 			ganho.DeleteGanhoRoute,
+		)
+	}
+
+	// Rotas de despesas
+	despesaGroup := v1.Group("/despesas")
+	despesaGroup.Use(security.AuthMiddleware())
+	{
+		despesaGroup.POST(
+			"/create",
+			despesa.CreateDespesaRoute,
+		)
+
+		despesaGroup.GET(
+			"",
+			despesa.GetDespesasRoute,
+		)
+
+		despesaGroup.GET(
+			"/:id",
+			despesa.GetDespesaByIDRoute,
+		)
+
+		despesaGroup.PUT(
+			"/update",
+			despesa.UpdateDespesaRoute,
+		)
+
+		despesaGroup.DELETE(
+			"/delete/:id",
+			despesa.DeleteDespesaRoute,
 		)
 	}
 

@@ -12,8 +12,3 @@ func GetGanhosController(idUsuario int, dataInicio, dataFim *string, idGrupo *in
 func GetGanhosByIDController(id string) (*schemas.GetGanhoByIDResponse, error) {
 	return ganhoService.GetGanhosByIDService(id)
 }
-
-func IsValidationError(err error) bool {
-	_, ok := err.(*ganhoService.ValidationError)
-	return ok
-}

@@ -1,21 +1,18 @@
-package ganho
+package despesa
 
 import (
-	"net/http"
-
 	"github.com/GabrielVilarino/gestao-financeira-back.git/configs"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/controllers"
-	ganhoController "github.com/GabrielVilarino/gestao-financeira-back.git/controllers/ganho"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/controllers/despesa"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/schemas"
 	"github.com/gin-gonic/gin"
 )
 
-func CreateGanhoRoute(c *gin.Context) {
-	var request schemas.CreateGanhoRequest
+func CreateDespesaRoute(c *gin.Context) {
+	var request schemas.CreateDespesaRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
-		configs.Log.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Erro ao registrar ganho",
+		c.JSON(400, gin.H{
+			"error": "Erro ao registrar despesa",
 		})
 		return
 	}
@@ -27,20 +24,20 @@ func CreateGanhoRoute(c *gin.Context) {
 		idGrupoJWT = &idGroupRaw
 	}
 
-	response, err := ganhoController.CreateGanhoController(idUsuario, idGrupoJWT, request)
+	response, err := despesa.CreateDespesaController(idUsuario, idGrupoJWT, request)
 	if err != nil {
 		configs.Log.Error(err)
 		if controllers.IsValidationError(err) {
-			c.JSON(http.StatusBadRequest, gin.H{
+			c.JSON(400, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Erro ao registrar ganho",
+		c.JSON(500, gin.H{
+			"error": "Erro ao registrar despesa",
 		})
 		return
 	}
 
-	c.JSON(http.StatusCreated, response)
+	c.JSON(201, response)
 }
