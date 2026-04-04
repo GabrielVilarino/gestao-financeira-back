@@ -8,6 +8,7 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/categoria"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/despesa"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/ganho"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/subcategoria"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/user"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/security"
 	"github.com/gin-gonic/gin"
@@ -118,9 +119,44 @@ func InitializeRoutes() {
 			categoria.GetCategoriasRoute,
 		)
 
-		categoriaGroup.GET(
-			"/subcategorias",
-			categoria.GetSubcategoriasRoute,
+		categoriaGroup.POST(
+			"/create",
+			categoria.CreateCategoriaRoute,
+		)
+
+		categoriaGroup.PUT(
+			"/update",
+			categoria.UpdateCategoriaRoute,
+		)
+
+		categoriaGroup.DELETE(
+			"/delete/:id",
+			categoria.DeleteCategoriaRoute,
+		)
+	}
+
+	// Rotas de subcategorias
+	subcategoriaGroup := v1.Group("/subcategorias")
+	subcategoriaGroup.Use(security.AuthMiddleware())
+	{
+		subcategoriaGroup.GET(
+			"",
+			subcategoria.GetSubcategoriasRoute,
+		)
+
+		subcategoriaGroup.POST(
+			"/create",
+			subcategoria.CreateSubCategoriaRoute,
+		)
+
+		subcategoriaGroup.PUT(
+			"/update",
+			subcategoria.UpdateSubCategoriaRoute,
+		)
+
+		subcategoriaGroup.DELETE(
+			"/delete/:id",
+			subcategoria.DeleteSubCategoriaRoute,
 		)
 	}
 
