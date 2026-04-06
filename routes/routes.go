@@ -175,7 +175,9 @@ func InitializeRoutes() {
 		)
 	}
 
-	configs.Log.Info("==> Servidor Iniciado <==")
-	// Inicia o servidor na porta 8080
-	router.Run(":8080")
+	configs.Log.Infof("==> Servidor Iniciado na porta %s <==", os.Getenv("PORT"))
+	// Inicia o servidor na porta definida na variável de ambiente PORT
+	if err := router.Run(":" + os.Getenv("PORT")); err != nil {
+		configs.Log.Error("Servidor Parou: " + err.Error())
+	}
 }
