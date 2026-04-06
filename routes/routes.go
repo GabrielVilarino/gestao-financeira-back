@@ -8,6 +8,7 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/categoria"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/despesa"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/ganho"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/grupo"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/subcategoria"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/user"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/security"
@@ -157,6 +158,20 @@ func InitializeRoutes() {
 		subcategoriaGroup.DELETE(
 			"/delete/:id",
 			subcategoria.DeleteSubCategoriaRoute,
+		)
+	}
+
+	// Rotas de grupos
+	grupoGroup := v1.Group("/grupos")
+	grupoGroup.Use(security.AuthMiddleware())
+	{
+		grupoGroup.GET(
+			"/:id",
+			grupo.GetGrupoByIDRoute,
+		)
+		grupoGroup.POST(
+			"/create",
+			grupo.CreateGrupoRoute,
 		)
 	}
 
