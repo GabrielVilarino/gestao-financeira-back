@@ -109,3 +109,48 @@ func GetParticipantesByIDRepository(idGrupo int) (*[]entities.User, error) {
 
 	return &participantes, nil
 }
+
+func AddParticipanteRepository(email string, idGroup int) error {
+	query := `
+		UPDATE usuario
+		SET id_grupo = $1
+		WHERE email = $2
+	`
+
+	_, err := config.DB.Exec(query, idGroup, email)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func DeleteParticipanteRepository(idParticipante int, idGroup int) error {
+	query := `
+		UPDATE usuario
+		SET id_grupo = NULL, is_admin = false
+		WHERE id_usuario = $1 AND id_grupo = $2
+	`
+
+	_, err := config.DB.Exec(query, idParticipante, idGroup)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UpdateRoleParticipanteRepository(isAdmin bool, idParticipante int, idGroup int) error {
+	query := `
+		UPDATE usuario
+		SET is_admin = $1
+		WHERE id_usuario = $2 AND id_grupo = $3
+	`
+
+	_, err := config.DB.Exec(query, isAdmin, idParticipante, idGroup)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

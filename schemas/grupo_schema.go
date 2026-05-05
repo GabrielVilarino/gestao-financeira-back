@@ -9,3 +9,11 @@ type GrupoResponse struct {
 	Nome        string `json:"nome"`
 	DataCriacao string `json:"data_criacao"`
 }
+
+type AddParticipanteRequest struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+type UpdateRoleParticipanteRequest struct {
+	IsAdmin bool `json:"is_admin"`
+}

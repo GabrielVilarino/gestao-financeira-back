@@ -6,6 +6,7 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/configs"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/auth"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/categoria"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/dashboard"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/despesa"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/ganho"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/grupo"
@@ -169,13 +170,50 @@ func InitializeRoutes() {
 			"/:id",
 			grupo.GetGrupoByIDRoute,
 		)
+		grupoGroup.POST(
+			"/create",
+			grupo.CreateGrupoRoute,
+		)
 		grupoGroup.GET(
 			"/:id/participantes",
 			grupo.GetParcipantesByIDRoute,
 		)
 		grupoGroup.POST(
-			"/create",
-			grupo.CreateGrupoRoute,
+			"/:id/participantes",
+			grupo.AddParticipanteRoute,
+		)
+		grupoGroup.DELETE(
+			"/:id/participantes/:id_participante",
+			grupo.DeleteParticipanteRoute,
+		)
+		grupoGroup.PATCH(
+			"/:id/participantes/:id_participante/admin",
+			grupo.UpdateRoleParticipanteRoute,
+		)
+	}
+
+	// Rotas de dashboard
+	dashboardGroup := v1.Group("/dashboard")
+	dashboardGroup.Use(security.AuthMiddleware())
+	{
+		dashboardGroup.GET(
+			"/total-ganhos",
+			dashboard.GetDashboardTotalGanhosRoute,
+		)
+
+		dashboardGroup.GET(
+			"/total-despesas",
+			dashboard.GetDashboardTotalDespesasRoute,
+		)
+
+		dashboardGroup.GET(
+			"/saldo-liquido",
+			dashboard.GetDashboardSaldoLiquidoRoute,
+		)
+
+		dashboardGroup.GET(
+			"/evolucao-mensal",
+			dashboard.GetDashboardEvolucaoMensalRoute,
 		)
 	}
 
