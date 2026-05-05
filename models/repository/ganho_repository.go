@@ -87,19 +87,21 @@ func GetGanhosRepository(idUsuario int, dataInicio, dataFim *string, idGrupo *in
 		ON c.id_categoria = r.id_categoria
 	`
 
-	args := []interface{}{idUsuario}
-	conditions := " WHERE r.id_usuario = $1"
-	paramIdx := 2
+	var args []interface{}
+	var conditions string
+	paramIdx := 1
 	addCondition := func(clause string) {
 		conditions += " AND " + clause
 	}
 
 	if idGrupo != nil {
-		addCondition(fmt.Sprintf("r.id_grupo = $%d", paramIdx))
+		conditions = fmt.Sprintf(" WHERE r.id_grupo = $%d", paramIdx)
 		args = append(args, *idGrupo)
 		paramIdx++
 	} else {
-		addCondition("r.id_grupo IS NULL")
+		conditions = fmt.Sprintf(" WHERE r.id_usuario = $%d AND r.id_grupo IS NULL", paramIdx)
+		args = append(args, idUsuario)
+		paramIdx++
 	}
 
 	if dataInicio != nil {

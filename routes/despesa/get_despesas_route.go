@@ -2,7 +2,6 @@ package despesa
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/GabrielVilarino/gestao-financeira-back.git/configs"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/controllers"
@@ -24,17 +23,10 @@ func GetDespesasRoute(c *gin.Context) {
 		dataFim = &val
 	}
 
-	if val := c.Query("id_grupo"); val != "" {
-		parsed, err := strconv.Atoi(val)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "id_grupo inválido",
-			})
-			return
-		}
-		idGrupo = &parsed
+	if c.Query("group") == "true" {
+		groupID := c.GetInt("id_group")
+		idGrupo = &groupID
 	}
-
 	response, err := despesa.GetDespesasController(idUsuario, dataInicio, dataFim, idGrupo)
 	if err != nil {
 		configs.Log.Error(err)

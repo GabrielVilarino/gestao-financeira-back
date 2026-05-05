@@ -97,72 +97,110 @@ func GetDespesasRepository(idUsuario int, dataInicio, dataFim *string, idGrupo *
 		ON sc.id_subcategoria = d.id_subcategoria
 	`
 
-	args := []interface{}{idUsuario}
-	conditions := " WHERE d.id_usuario = $1"
-	paramIdx := 2
+	var args []interface{}
+	var conditions string
+	paramIdx := 1
 	addCondition := func(clause string) {
 		conditions += " AND " + clause
 	}
 
 	if idGrupo != nil {
-		addCondition(fmt.Sprintf("d.id_grupo = $%d", paramIdx))
+		conditions = fmt.Sprintf(" WHERE d.id_grupo = $%d", paramIdx)
 		args = append(args, *idGrupo)
 		paramIdx++
 	} else {
-		addCondition("d.id_grupo IS NULL")
+		conditions = fmt.Sprintf(" WHERE d.id_usuario = $%d AND d.id_grupo IS NULL", paramIdx)
+		args = append(args, idUsuario)
+		paramIdx++
 	}
 
 	if dataInicio != nil && dataFim != nil {
-		addCondition(fmt.Sprintf(`
-			(
-				d.tipo_transacao = 'fixa'
-				OR (
-					d.tipo_transacao = 'parcelado'
-					AND d.data_pagamento <= $%d
-					AND d.data_ult_pagamento >= $%d
+		if idGrupo != nil {
+			addCondition(fmt.Sprintf(`
+				(
+					(d.tipo_transacao = 'fixa' AND d.id_grupo IS NOT NULL)
+					OR (
+						d.tipo_transacao = 'variavel'
+						AND d.data_pagamento BETWEEN $%d AND $%d
+					)
 				)
-				OR (
-					d.tipo_transacao = 'variavel'
-					AND d.data_pagamento BETWEEN $%d AND $%d
+			`, paramIdx, paramIdx+1))
+		} else {
+			addCondition(fmt.Sprintf(`
+				(
+					d.tipo_transacao = 'fixa'
+					OR (
+						d.tipo_transacao = 'parcelado'
+						AND d.data_pagamento <= $%d
+						AND d.data_ult_pagamento >= $%d
+					)
+					OR (
+						d.tipo_transacao = 'variavel'
+						AND d.data_pagamento BETWEEN $%d AND $%d
+					)
 				)
-			)
-		`, paramIdx+1, paramIdx, paramIdx, paramIdx+1))
+			`, paramIdx+1, paramIdx, paramIdx, paramIdx+1))
+		}
 
 		args = append(args, *dataInicio, *dataFim)
 		paramIdx += 2
 
 	} else if dataInicio != nil {
-		addCondition(fmt.Sprintf(`
-			(
-				d.tipo_transacao = 'fixa'
-				OR (
-					d.tipo_transacao = 'parcelado'
-					AND d.data_ult_pagamento >= $%d
+		if idGrupo != nil {
+			addCondition(fmt.Sprintf(`
+				(
+					(d.tipo_transacao = 'fixa' AND d.id_grupo IS NOT NULL)
+					OR (
+						d.tipo_transacao = 'variavel'
+						AND d.data_pagamento >= $%d
+					)
 				)
-				OR (
-					d.tipo_transacao = 'variavel'
-					AND d.data_pagamento >= $%d
+			`, paramIdx))
+		} else {
+			addCondition(fmt.Sprintf(`
+				(
+					d.tipo_transacao = 'fixa'
+					OR (
+						d.tipo_transacao = 'parcelado'
+						AND d.data_ult_pagamento >= $%d
+					)
+					OR (
+						d.tipo_transacao = 'variavel'
+						AND d.data_pagamento >= $%d
+					)
 				)
-			)
-		`, paramIdx, paramIdx))
+			`, paramIdx, paramIdx))
+		}
 
 		args = append(args, *dataInicio)
 		paramIdx++
 
 	} else if dataFim != nil {
-		addCondition(fmt.Sprintf(`
-			(
-				d.tipo_transacao = 'fixa'
-				OR (
-					d.tipo_transacao = 'parcelado'
-					AND d.data_pagamento <= $%d
+		if idGrupo != nil {
+			addCondition(fmt.Sprintf(`
+				(
+					(d.tipo_transacao = 'fixa' AND d.id_grupo IS NOT NULL)
+					OR (
+						d.tipo_transacao = 'variavel'
+						AND d.data_pagamento <= $%d
+					)
 				)
-				OR (
-					d.tipo_transacao = 'variavel'
-					AND d.data_pagamento <= $%d
+			`, paramIdx))
+		} else {
+			addCondition(fmt.Sprintf(`
+				(
+					d.tipo_transacao = 'fixa'
+					OR (
+						d.tipo_transacao = 'parcelado'
+						AND d.data_pagamento <= $%d
+					)
+					OR (
+						d.tipo_transacao = 'variavel'
+						AND d.data_pagamento <= $%d
+					)
 				)
-			)
-		`, paramIdx, paramIdx))
+			`, paramIdx, paramIdx))
+		}
 
 		args = append(args, *dataFim)
 		paramIdx++
