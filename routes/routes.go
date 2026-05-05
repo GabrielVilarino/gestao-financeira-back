@@ -169,6 +169,10 @@ func InitializeRoutes() {
 			"/:id",
 			grupo.GetGrupoByIDRoute,
 		)
+		grupoGroup.GET(
+			"/:id/participantes",
+			grupo.GetParcipantesByIDRoute,
+		)
 		grupoGroup.POST(
 			"/create",
 			grupo.CreateGrupoRoute,

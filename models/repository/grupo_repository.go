@@ -57,3 +57,55 @@ func GetGrupoByIDRepository(idGrupo int) (*entities.Grupo, error) {
 
 	return &grupo, nil
 }
+
+func GetParticipantesByIDRepository(idGrupo int) (*[]entities.User, error) {
+	query := `
+		SELECT 
+			u.id_usuario,
+			u.nome,
+			u.email,
+			u.data_criacao,
+			u.is_admin
+		FROM 
+			usuario u
+		WHERE 
+			u.id_grupo = $1
+	`
+
+	rows, err := config.DB.Query(query, idGrupo)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var participantes []entities.User
+
+	for rows.Next() {
+		var participante entities.Participante
+
+		err := rows.Scan(
+			&participante.ID,
+			&participante.Nome,
+			&participante.Email,
+			&participante.DataCriacao,
+			&participante.IsAdmin,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		participantes = append(participantes, entities.User{
+			ID:          &participante.ID,
+			Nome:        participante.Nome,
+			Email:       participante.Email,
+			DataCriacao: &participante.DataCriacao,
+			IsAdmin:     &participante.IsAdmin,
+		})
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return &participantes, nil
+}

@@ -18,3 +18,17 @@ func EntityToGrupoResponse(grupoEntity entities.Grupo) schemas.GrupoResponse {
 		DataCriacao: grupoEntity.DataCriacao,
 	}
 }
+
+func EntityToParticipanteResponse(userEntity []entities.User) schemas.ParticipanteResponse {
+	participantes := make([]schemas.Participante, len(userEntity))
+	for i, user := range userEntity {
+		participantes[i] = schemas.Participante{
+			ID:          *user.ID,
+			Nome:        user.Nome,
+			Email:       user.Email,
+			IsAdmin:     *user.IsAdmin,
+			DataCriacao: *user.DataCriacao,
+		}
+	}
+	return schemas.ParticipanteResponse{Participantes: participantes}
+}
