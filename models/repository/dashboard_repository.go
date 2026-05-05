@@ -7,13 +7,43 @@ import (
 
 func GetDashboardTotalGanhosRepository(idUsuario int, idGrupo *int, dataInicio, dataFim string) (float64, error) {
 	query := `
-		SELECT COALESCE(SUM(r.valor), 0)
-		FROM receita r
-		WHERE (
-				($2::int IS NOT NULL AND r.id_grupo = $2)
-				OR ($2::int IS NULL AND r.id_usuario = $1 AND r.id_grupo IS NULL)
-			)
-			AND r.data_recebimento BETWEEN $3::date AND $4::date
+		WITH meses AS (
+			SELECT generate_series(
+				date_trunc('month', $3::date),
+				date_trunc('month', $4::date),
+				interval '1 month'
+			)::date AS mes
+		)
+		SELECT COALESCE(SUM(total_mes), 0)
+		FROM (
+			SELECT
+				m.mes,
+				SUM(
+					CASE
+						WHEN r.tipo_transacao = 'fixa'
+							AND r.data_recebimento <= (m.mes + interval '1 month - 1 day')::date
+						THEN r.valor
+						WHEN r.tipo_transacao = 'variavel'
+							AND date_trunc('month', r.data_recebimento)::date = m.mes
+						THEN r.valor
+						ELSE 0
+					END
+				) AS total_mes
+			FROM meses m
+			CROSS JOIN receita r
+			WHERE (
+					($2::int IS NOT NULL AND r.id_grupo = $2)
+					OR ($2::int IS NULL AND r.id_usuario = $1 AND r.id_grupo IS NULL)
+				)
+				AND (
+					r.tipo_transacao = 'fixa'
+					OR (
+						r.tipo_transacao = 'variavel'
+						AND r.data_recebimento BETWEEN $3::date AND $4::date
+					)
+				)
+			GROUP BY m.mes
+		) ganhos_por_mes
 	`
 
 	var totalGanhos float64
@@ -85,13 +115,43 @@ func GetDashboardTotalDespesasRepository(idUsuario int, idGrupo *int, dataInicio
 func GetDashboardSaldoLiquidoRepository(idUsuario int, idGrupo *int, dataInicio, dataFim string) (float64, error) {
 	query := `
 		WITH total_ganhos AS (
-			SELECT COALESCE(SUM(r.valor), 0) AS valor
-			FROM receita r
-			WHERE (
-					($2::int IS NOT NULL AND r.id_grupo = $2)
-					OR ($2::int IS NULL AND r.id_usuario = $1 AND r.id_grupo IS NULL)
-				)
-				AND r.data_recebimento BETWEEN $3::date AND $4::date
+			WITH meses AS (
+				SELECT generate_series(
+					date_trunc('month', $3::date),
+					date_trunc('month', $4::date),
+					interval '1 month'
+				)::date AS mes
+			)
+			SELECT COALESCE(SUM(total_mes), 0) AS valor
+			FROM (
+				SELECT
+					m.mes,
+					SUM(
+						CASE
+							WHEN r.tipo_transacao = 'fixa'
+								AND r.data_recebimento <= (m.mes + interval '1 month - 1 day')::date
+							THEN r.valor
+							WHEN r.tipo_transacao = 'variavel'
+								AND date_trunc('month', r.data_recebimento)::date = m.mes
+							THEN r.valor
+							ELSE 0
+						END
+					) AS total_mes
+				FROM meses m
+				CROSS JOIN receita r
+				WHERE (
+						($2::int IS NOT NULL AND r.id_grupo = $2)
+						OR ($2::int IS NULL AND r.id_usuario = $1 AND r.id_grupo IS NULL)
+					)
+					AND (
+						r.tipo_transacao = 'fixa'
+						OR (
+							r.tipo_transacao = 'variavel'
+							AND r.data_recebimento BETWEEN $3::date AND $4::date
+						)
+					)
+				GROUP BY m.mes
+			) ganhos_por_mes
 		),
 		total_despesas AS (
 			WITH meses AS (
@@ -163,15 +223,32 @@ func GetDashboardEvolucaoMensalRepository(idUsuario int, idGrupo *int, dataInici
 		),
 		ganhos AS (
 			SELECT 
-				date_trunc('month', r.data_recebimento)::date AS mes,
-				COALESCE(SUM(r.valor), 0) AS total_ganhos
-			FROM receita r
+				m.mes,
+				COALESCE(SUM(
+					CASE
+						WHEN r.tipo_transacao = 'fixa'
+							AND r.data_recebimento <= (m.mes + interval '1 month - 1 day')::date
+						THEN r.valor
+						WHEN r.tipo_transacao = 'variavel'
+							AND date_trunc('month', r.data_recebimento)::date = m.mes
+						THEN r.valor
+						ELSE 0
+					END
+				), 0) AS total_ganhos
+			FROM meses m
+			CROSS JOIN receita r
 			WHERE (
 					($2::int IS NOT NULL AND r.id_grupo = $2)
 					OR ($2::int IS NULL AND r.id_usuario = $1 AND r.id_grupo IS NULL)
 				)
-				AND r.data_recebimento BETWEEN $3::date AND $4::date
-			GROUP BY date_trunc('month', r.data_recebimento)::date
+				AND (
+					r.tipo_transacao = 'fixa'
+					OR (
+						r.tipo_transacao = 'variavel'
+						AND r.data_recebimento BETWEEN $3::date AND $4::date
+					)
+				)
+			GROUP BY m.mes
 		),
 		despesas AS (
 			SELECT 

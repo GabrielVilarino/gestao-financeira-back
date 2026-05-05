@@ -104,13 +104,79 @@ func GetGanhosRepository(idUsuario int, dataInicio, dataFim *string, idGrupo *in
 		paramIdx++
 	}
 
-	if dataInicio != nil {
-		addCondition(fmt.Sprintf("r.data_recebimento >= $%d", paramIdx))
+	if dataInicio != nil && dataFim != nil {
+		if idGrupo != nil {
+			addCondition(fmt.Sprintf(`
+				(
+					(r.tipo_transacao = 'fixa' AND r.id_grupo IS NOT NULL)
+					OR (
+						r.tipo_transacao = 'variavel'
+						AND r.data_recebimento BETWEEN $%d AND $%d
+					)
+				)
+			`, paramIdx, paramIdx+1))
+		} else {
+			addCondition(fmt.Sprintf(`
+				(
+					r.tipo_transacao = 'fixa'
+					OR (
+						r.tipo_transacao = 'variavel'
+						AND r.data_recebimento BETWEEN $%d AND $%d
+					)
+				)
+			`, paramIdx, paramIdx+1))
+		}
+
+		args = append(args, *dataInicio, *dataFim)
+		paramIdx += 2
+	} else if dataInicio != nil {
+		if idGrupo != nil {
+			addCondition(fmt.Sprintf(`
+				(
+					(r.tipo_transacao = 'fixa' AND r.id_grupo IS NOT NULL)
+					OR (
+						r.tipo_transacao = 'variavel'
+						AND r.data_recebimento >= $%d
+					)
+				)
+			`, paramIdx))
+		} else {
+			addCondition(fmt.Sprintf(`
+				(
+					r.tipo_transacao = 'fixa'
+					OR (
+						r.tipo_transacao = 'variavel'
+						AND r.data_recebimento >= $%d
+					)
+				)
+			`, paramIdx))
+		}
+
 		args = append(args, *dataInicio)
 		paramIdx++
-	}
-	if dataFim != nil {
-		addCondition(fmt.Sprintf("r.data_recebimento <= $%d", paramIdx))
+	} else if dataFim != nil {
+		if idGrupo != nil {
+			addCondition(fmt.Sprintf(`
+				(
+					(r.tipo_transacao = 'fixa' AND r.id_grupo IS NOT NULL)
+					OR (
+						r.tipo_transacao = 'variavel'
+						AND r.data_recebimento <= $%d
+					)
+				)
+			`, paramIdx))
+		} else {
+			addCondition(fmt.Sprintf(`
+				(
+					r.tipo_transacao = 'fixa'
+					OR (
+						r.tipo_transacao = 'variavel'
+						AND r.data_recebimento <= $%d
+					)
+				)
+			`, paramIdx))
+		}
+
 		args = append(args, *dataFim)
 	}
 
