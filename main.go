@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/configs"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/jobs"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/models/config"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes"
 )
@@ -21,6 +22,9 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+
+	// Inicia o job de geração de transações recorrentes
+	jobs.StartRecorrenciaJob()
 
 	// Inicia o servidor
 	routes.InitializeRoutes()

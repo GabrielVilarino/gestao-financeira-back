@@ -9,3 +9,5 @@ config.local.json
 
 # IDEs
 .vscode/
+
+ddl.sql

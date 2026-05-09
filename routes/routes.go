@@ -7,10 +7,10 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/auth"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/categoria"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/dashboard"
-	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/despesa"
-	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/ganho"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/grupo"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/recorrencia"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/subcategoria"
+	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/transacao"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/routes/user"
 	"github.com/GabrielVilarino/gestao-financeira-back.git/security"
 	"github.com/gin-gonic/gin"
@@ -52,63 +52,33 @@ func InitializeRoutes() {
 		)
 	}
 
-	// Rotas de ganhos
-	ganhoGroup := v1.Group("/ganhos")
-	ganhoGroup.Use(security.AuthMiddleware())
+	// Rotas de transações
+	transacaoGroup := v1.Group("/transacoes")
+	transacaoGroup.Use(security.AuthMiddleware())
 	{
-		ganhoGroup.POST(
+		transacaoGroup.POST(
 			"/create",
-			ganho.CreateGanhoRoute,
+			transacao.CreateTransacaoRoute,
 		)
 
-		ganhoGroup.GET(
+		transacaoGroup.GET(
 			"",
-			ganho.GetGanhosRoute,
+			transacao.GetTransacoesRoute,
 		)
 
-		ganhoGroup.GET(
+		transacaoGroup.GET(
 			"/:id",
-			ganho.GetGanhosByIDRoute,
+			transacao.GetTransacaoByIDRoute,
 		)
 
-		ganhoGroup.PUT(
+		transacaoGroup.PUT(
 			"/update",
-			ganho.UpdateGanhoRoute,
+			transacao.UpdateTransacaoRoute,
 		)
 
-		ganhoGroup.DELETE(
+		transacaoGroup.DELETE(
 			"/delete/:id",
-			ganho.DeleteGanhoRoute,
-		)
-	}
-
-	// Rotas de despesas
-	despesaGroup := v1.Group("/despesas")
-	despesaGroup.Use(security.AuthMiddleware())
-	{
-		despesaGroup.POST(
-			"/create",
-			despesa.CreateDespesaRoute,
-		)
-
-		despesaGroup.GET(
-			"",
-			despesa.GetDespesasRoute,
-		)
-
-		despesaGroup.GET(
-			"/:id",
-			despesa.GetDespesaByIDRoute,
-		)
-
-		despesaGroup.PUT(
-			"/update",
-			despesa.UpdateDespesaRoute,
-		)
-
-		despesaGroup.DELETE(
-			"/delete/:id",
-			despesa.DeleteDespesaRoute,
+			transacao.DeleteTransacaoRoute,
 		)
 	}
 
@@ -189,6 +159,26 @@ func InitializeRoutes() {
 		grupoGroup.PATCH(
 			"/:id/participantes/:id_participante/admin",
 			grupo.UpdateRoleParticipanteRoute,
+		)
+	}
+
+	// Rotas de recorrências
+	recorrenciaGroup := v1.Group("/recorrencias")
+	recorrenciaGroup.Use(security.AuthMiddleware())
+	{
+		recorrenciaGroup.POST(
+			"/create",
+			recorrencia.CreateRecorrenciaRoute,
+		)
+
+		recorrenciaGroup.GET(
+			"",
+			recorrencia.GetRecorrenciasRoute,
+		)
+
+		recorrenciaGroup.PATCH(
+			"/encerrar/:id",
+			recorrencia.EncerrarRecorrenciaRoute,
 		)
 	}
 
