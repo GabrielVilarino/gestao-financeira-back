@@ -9,12 +9,7 @@ import (
 )
 
 func GetRecorrenciasService(idUsuario int, idGrupoJWT *int, idGrupo *int) ([]schemas.GetRecorrenciaResponse, error) {
-	idGrupoResolved := idGrupo
-	if idGrupoResolved == nil {
-		idGrupoResolved = idGrupoJWT
-	}
-
-	recorrencias, err := repository.GetRecorrenciasByUsuarioRepository(idUsuario, idGrupoResolved)
+	recorrencias, err := repository.GetRecorrenciasByUsuarioRepository(idUsuario, idGrupo)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao buscar recorrências: %w", err)
 	}
