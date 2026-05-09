@@ -28,6 +28,10 @@ func CreateRecorrenciaRoute(c *gin.Context) {
 		idGrupoJWT = &idGroupRaw
 	}
 
+	if c.Query("group") == "true" && idGrupoJWT != nil {
+		req.IDGrupo = idGrupoJWT
+	}
+
 	response, err := recorrenciaController.CreateRecorrenciaController(idUsuario, idGrupoJWT, req)
 	if err != nil {
 		configs.Log.Error(err)

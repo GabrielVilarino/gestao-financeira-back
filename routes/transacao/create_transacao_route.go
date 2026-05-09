@@ -27,6 +27,10 @@ func CreateTransacaoRoute(c *gin.Context) {
 		idGrupoJWT = &idGroupRaw
 	}
 
+	if c.Query("group") == "true" && idGrupoJWT != nil {
+		request.IDGrupo = idGrupoJWT
+	}
+
 	response, err := transacaoController.CreateTransacaoController(idUsuario, idGrupoJWT, request)
 	if err != nil {
 		configs.Log.Error(err)

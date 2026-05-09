@@ -17,9 +17,6 @@ func CreateTransacaoService(idUsuario int, idGrupoJWT *int, request schemas.Crea
 	if request.IDGrupo != nil {
 		transacao.IDGrupo = request.IDGrupo
 		transacao.Escopo = "GRUPO"
-	} else if idGrupoJWT != nil {
-		transacao.IDGrupo = idGrupoJWT
-		transacao.Escopo = "GRUPO"
 	} else {
 		transacao.Escopo = "PESSOAL"
 	}

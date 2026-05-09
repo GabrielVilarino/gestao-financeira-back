@@ -39,9 +39,6 @@ func CreateRecorrenciaService(idUsuario int, idGrupoJWT *int, req schemas.Create
 	if req.IDGrupo != nil {
 		rec.IDGrupo = req.IDGrupo
 		rec.Escopo = "GRUPO"
-	} else if idGrupoJWT != nil {
-		rec.IDGrupo = idGrupoJWT
-		rec.Escopo = "GRUPO"
 	} else {
 		rec.Escopo = "PESSOAL"
 	}

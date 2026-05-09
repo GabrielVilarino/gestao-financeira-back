@@ -13,9 +13,9 @@ func UpdateTransacaoService(idUsuario int, idGrupoJWT *int, request schemas.Upda
 
 	transacao := transacaoUpdateSchemaToEntity(request)
 	transacao.IDUsuario = idUsuario
-	transacao.IDGrupo = idGrupoJWT
 
-	if idGrupoJWT != nil {
+	if request.IDGrupo != nil {
+		transacao.IDGrupo = request.IDGrupo
 		transacao.Escopo = "GRUPO"
 	} else {
 		transacao.Escopo = "PESSOAL"
