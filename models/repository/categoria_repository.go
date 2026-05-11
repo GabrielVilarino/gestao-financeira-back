@@ -10,7 +10,7 @@ import (
 
 func GetCategoriasRepository(idUsuario int, tipo *string) ([]schemas.CategoriaResponse, error) {
 	query := `
-		SELECT id_categoria, nome, tipo_movimentacao
+		SELECT id_categoria, nome, tipo_movimentacao, id_grupo
 		FROM categoria
 		WHERE id_usuario = $1
 	`
@@ -32,7 +32,7 @@ func GetCategoriasRepository(idUsuario int, tipo *string) ([]schemas.CategoriaRe
 	var categorias []schemas.CategoriaResponse
 	for rows.Next() {
 		var c schemas.CategoriaResponse
-		if err := rows.Scan(&c.ID, &c.Nome, &c.TipoMovimentacao); err != nil {
+		if err := rows.Scan(&c.ID, &c.Nome, &c.TipoMovimentacao, &c.IDGrupo); err != nil {
 			return nil, err
 		}
 		categorias = append(categorias, c)
@@ -43,15 +43,16 @@ func GetCategoriasRepository(idUsuario int, tipo *string) ([]schemas.CategoriaRe
 
 func CreateCategoriaRepository(request entities.Categoria) (*entities.Categoria, error) {
 	query := `
-		INSERT INTO categoria (id_usuario, nome, tipo_movimentacao)
-		VALUES ($1, $2, $3)
-		RETURNING id_categoria, nome, tipo_movimentacao, id_usuario
+		INSERT INTO categoria (id_usuario, id_grupo, nome, tipo_movimentacao)
+		VALUES ($1, $2, $3, $4)
+		RETURNING id_categoria, nome, tipo_movimentacao, id_usuario, id_grupo
 	`
 
 	var categoria entities.Categoria
 	err := config.DB.QueryRow(
 		query,
 		request.IDUsuario,
+		request.IDGrupo,
 		request.Nome,
 		request.TipoMovimentacao,
 	).Scan(
@@ -59,6 +60,7 @@ func CreateCategoriaRepository(request entities.Categoria) (*entities.Categoria,
 		&categoria.Nome,
 		&categoria.TipoMovimentacao,
 		&categoria.IDUsuario,
+		&categoria.IDGrupo,
 	)
 
 	if err != nil {
@@ -74,7 +76,7 @@ func UpdateCategoriaRepository(request entities.Categoria) (*entities.Categoria,
 		SET nome = $1, tipo_movimentacao = $2
 		WHERE id_categoria = $3
 		AND id_usuario = $4
-		RETURNING id_categoria, nome, tipo_movimentacao, id_usuario
+		RETURNING id_categoria, nome, tipo_movimentacao, id_usuario, id_grupo
 	`
 
 	var categoria entities.Categoria
@@ -89,6 +91,7 @@ func UpdateCategoriaRepository(request entities.Categoria) (*entities.Categoria,
 		&categoria.Nome,
 		&categoria.TipoMovimentacao,
 		&categoria.IDUsuario,
+		&categoria.IDGrupo,
 	)
 
 	if err != nil {

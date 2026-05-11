@@ -16,4 +16,5 @@ type CategoriaResponse struct {
 	Nome             string `json:"nome"`
 	TipoMovimentacao string `json:"tipo_movimentacao"`
 	IDUsuario        *int   `json:"id_usuario"`
+	IDGrupo          *int   `json:"id_grupo,omitempty"`
 }

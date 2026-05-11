@@ -5,10 +5,11 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/schemas"
 )
 
-func SchemaCreateToEntity(request schemas.CreateSubCategoriaRequest) *entities.SubCategoria {
+func SchemaCreateToEntity(idGrupo *int, request schemas.CreateSubCategoriaRequest) *entities.SubCategoria {
 	return &entities.SubCategoria{
 		IDCategoria: request.IDCategoria,
 		Nome:        request.Nome,
+		IDGrupo:     idGrupo,
 	}
 }
 
@@ -24,5 +25,6 @@ func EntityToSchema(subcategoria entities.SubCategoria) *schemas.SubCategoriaRes
 		ID:          subcategoria.ID,
 		IDCategoria: subcategoria.IDCategoria,
 		Nome:        subcategoria.Nome,
+		IDGrupo:     subcategoria.IDGrupo,
 	}
 }

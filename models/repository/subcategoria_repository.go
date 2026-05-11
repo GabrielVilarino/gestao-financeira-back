@@ -10,7 +10,7 @@ import (
 
 func GetSubcategoriasRepository(idCategoria *int) ([]schemas.SubCategoriaResponse, error) {
 	query := `
-		SELECT id_subcategoria, id_categoria, nome
+		SELECT id_subcategoria, id_categoria, nome, id_grupo
 		FROM subcategoria
 	`
 	args := []interface{}{}
@@ -31,7 +31,7 @@ func GetSubcategoriasRepository(idCategoria *int) ([]schemas.SubCategoriaRespons
 	var subcategorias []schemas.SubCategoriaResponse
 	for rows.Next() {
 		var s schemas.SubCategoriaResponse
-		if err := rows.Scan(&s.ID, &s.IDCategoria, &s.Nome); err != nil {
+		if err := rows.Scan(&s.ID, &s.IDCategoria, &s.Nome, &s.IDGrupo); err != nil {
 			return nil, err
 		}
 		subcategorias = append(subcategorias, s)
@@ -42,20 +42,22 @@ func GetSubcategoriasRepository(idCategoria *int) ([]schemas.SubCategoriaRespons
 
 func CreateSubcategoriaRepository(subcategoria entities.SubCategoria) (*entities.SubCategoria, error) {
 	query := `
-		INSERT INTO subcategoria (id_categoria, nome)
-		VALUES ($1, $2)
-		RETURNING id_subcategoria, id_categoria, nome
+		INSERT INTO subcategoria (id_categoria, id_grupo, nome)
+		VALUES ($1, $2, $3)
+		RETURNING id_subcategoria, id_categoria, nome, id_grupo
 	`
 
 	var subcategoriaResponse entities.SubCategoria
 	err := config.DB.QueryRow(
 		query,
 		subcategoria.IDCategoria,
+		subcategoria.IDGrupo,
 		subcategoria.Nome,
 	).Scan(
 		&subcategoriaResponse.ID,
 		&subcategoriaResponse.IDCategoria,
 		&subcategoriaResponse.Nome,
+		&subcategoriaResponse.IDGrupo,
 	)
 
 	if err != nil {
@@ -70,7 +72,7 @@ func UpdateSubCategoriaRepository(subcategoria entities.SubCategoria) (*entities
 		UPDATE subcategoria
 		SET nome = $2
 		WHERE id_subcategoria = $1
-		RETURNING id_subcategoria, id_categoria, nome
+		RETURNING id_subcategoria, id_categoria, nome, id_grupo
 	`
 
 	var subcategoriaResponse entities.SubCategoria
@@ -82,6 +84,7 @@ func UpdateSubCategoriaRepository(subcategoria entities.SubCategoria) (*entities
 		&subcategoriaResponse.ID,
 		&subcategoriaResponse.IDCategoria,
 		&subcategoriaResponse.Nome,
+		&subcategoriaResponse.IDGrupo,
 	)
 
 	if err != nil {
