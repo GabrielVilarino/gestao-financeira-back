@@ -71,7 +71,14 @@ func GetRecorrenciasAtivasRepository() ([]entities.Recorrencia, error) {
 		FROM recorrencia r
 		JOIN transacao t ON t.id_recorrencia = r.id_recorrencia
 		WHERE r.ativa = true
-		  AND (r.data_fim IS NULL OR r.data_fim >= CURRENT_DATE)
+		  AND (
+		    r.data_fim IS NULL
+		    OR r.data_fim > (
+		      SELECT MAX(t2.competencia)
+		      FROM transacao t2
+		      WHERE t2.id_recorrencia = r.id_recorrencia
+		    )
+		  )
 		ORDER BY r.id_recorrencia, t.competencia DESC
 	`
 
