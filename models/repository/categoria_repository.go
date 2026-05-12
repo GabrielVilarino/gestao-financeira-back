@@ -8,17 +8,34 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/schemas"
 )
 
-func GetCategoriasRepository(idUsuario int, tipo *string) ([]schemas.CategoriaResponse, error) {
-	query := `
-		SELECT id_categoria, nome, tipo_movimentacao, id_grupo
-		FROM categoria
-		WHERE id_usuario = $1
-	`
-	args := []interface{}{idUsuario}
+func GetCategoriasRepository(idUsuario int, tipo *string, idGrupo *int) ([]schemas.CategoriaResponse, error) {
+	var query string
+	var args []interface{}
 
-	if tipo != nil {
-		query += " AND tipo_movimentacao = $2"
-		args = append(args, *tipo)
+	if idGrupo != nil {
+		query = `
+			SELECT id_categoria, nome, tipo_movimentacao, id_grupo
+			FROM categoria
+			WHERE id_grupo = $1
+		`
+		args = []interface{}{*idGrupo}
+
+		if tipo != nil {
+			query += " AND tipo_movimentacao = $2"
+			args = append(args, *tipo)
+		}
+	} else {
+		query = `
+			SELECT id_categoria, nome, tipo_movimentacao, id_grupo
+			FROM categoria
+			WHERE id_usuario = $1 AND id_grupo IS NULL
+		`
+		args = []interface{}{idUsuario}
+
+		if tipo != nil {
+			query += " AND tipo_movimentacao = $2"
+			args = append(args, *tipo)
+		}
 	}
 
 	query += " ORDER BY nome"

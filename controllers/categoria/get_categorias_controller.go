@@ -5,6 +5,6 @@ import (
 	categoriaService "github.com/GabrielVilarino/gestao-financeira-back.git/services/categoria"
 )
 
-func GetCategoriasController(idUsuario int, tipo *string) ([]schemas.CategoriaResponse, error) {
-	return categoriaService.GetCategoriasService(idUsuario, tipo)
+func GetCategoriasController(idUsuario int, tipo *string, idGrupo *int) ([]schemas.CategoriaResponse, error) {
+	return categoriaService.GetCategoriasService(idUsuario, tipo, idGrupo)
 }

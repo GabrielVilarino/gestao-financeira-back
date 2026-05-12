@@ -23,7 +23,15 @@ func GetSubcategoriasRoute(c *gin.Context) {
 		idCategoria = &parsed
 	}
 
-	response, err := subcategoria.GetSubcategoriasController(idCategoria)
+	var idGrupo *int
+	if c.Query("group") == "true" {
+		idGroupRaw := c.GetInt("id_group")
+		if idGroupRaw != 0 {
+			idGrupo = &idGroupRaw
+		}
+	}
+
+	response, err := subcategoria.GetSubcategoriasController(idCategoria, idGrupo)
 	if err != nil {
 		configs.Log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{

@@ -7,8 +7,8 @@ import (
 	"github.com/GabrielVilarino/gestao-financeira-back.git/schemas"
 )
 
-func GetCategoriasService(idUsuario int, tipo *string) ([]schemas.CategoriaResponse, error) {
-	categorias, err := repository.GetCategoriasRepository(idUsuario, tipo)
+func GetCategoriasService(idUsuario int, tipo *string, idGrupo *int) ([]schemas.CategoriaResponse, error) {
+	categorias, err := repository.GetCategoriasRepository(idUsuario, tipo, idGrupo)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao buscar categorias: %w", err)
 	}

@@ -23,7 +23,15 @@ func GetCategoriasRoute(c *gin.Context) {
 
 	idUsuario := c.GetInt("user_id")
 
-	response, err := categoriaController.GetCategoriasController(idUsuario, tipo)
+	var idGrupo *int
+	if c.Query("group") == "true" {
+		idGroupRaw := c.GetInt("id_group")
+		if idGroupRaw != 0 {
+			idGrupo = &idGroupRaw
+		}
+	}
+
+	response, err := categoriaController.GetCategoriasController(idUsuario, tipo, idGrupo)
 	if err != nil {
 		configs.Log.Error(err)
 		c.JSON(http.StatusInternalServerError, gin.H{
